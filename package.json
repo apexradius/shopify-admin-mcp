@@ -1,0 +1,49 @@
+{
+  "name": "@apexradius/shopify-mcp",
+  "version": "1.0.0",
+  "description": "A Model Context Protocol (MCP) server for Shopify — giving Claude direct access to your store's products, orders, customers, collections, metafields, and themes.",
+  "keywords": [
+    "shopify",
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "anthropic",
+    "ai",
+    "ecommerce"
+  ],
+  "author": "Apex Radius Labs",
+  "license": "MIT",
+  "homepage": "https://github.com/apexradius/shopify-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apexradius/shopify-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/apexradius/shopify-mcp/issues"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "shopify-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
