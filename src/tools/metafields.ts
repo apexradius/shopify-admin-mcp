@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ShopifyClient } from "../shopify/client.js";
+import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 
 interface MetafieldsResponse {
   metafields: unknown[];
@@ -12,6 +13,12 @@ interface MetafieldResponse {
 const ownerResourceEnum = z.enum([
   "product", "variant", "order", "customer", "collection", "shop", "blog", "page", "article",
 ]);
+
+function resolveMetafieldPath(ownerResource: string, ownerId?: string): string {
+  if (ownerResource === "shop") return "/metafields.json";
+  if (ownerId) return `/${ownerResource}s/${ownerId}/metafields.json`;
+  throw new Error("owner_id is required for non-shop resources");
+}
 
 export function registerMetafieldTools(server: McpServer, client: ShopifyClient): void {
   server.tool(
@@ -25,24 +32,14 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
       limit: z.number().min(1).max(250).optional().describe("Number of metafields to return (default 50)"),
     },
     async (args) => {
-      let path: string;
-      if (args.owner_resource === "shop") {
-        path = "/metafields.json";
-      } else if (args.owner_id) {
-        path = `/${args.owner_resource}s/${args.owner_id}/metafields.json`;
-      } else {
-        throw new Error("owner_id is required for non-shop resources");
-      }
-
+      const path = resolveMetafieldPath(args.owner_resource, args.owner_id);
       const qs = client.buildQueryString({
         namespace: args.namespace,
         key: args.key,
-        limit: args.limit ?? 50,
+        limit: args.limit ?? DEFAULT_LIMIT,
       });
       const data = await client.rest<MetafieldsResponse>("GET", `${path}${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.metafields, null, 2) }],
-      };
+      return formatResponse(data.metafields);
     }
   );
 
@@ -58,15 +55,7 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
       type: z.string().describe("Metafield type (e.g. single_line_text_field, integer, json, boolean, url, color, date, date_time, dimension, rating, volume, weight, money)"),
     },
     async (args) => {
-      let path: string;
-      if (args.owner_resource === "shop") {
-        path = "/metafields.json";
-      } else if (args.owner_id) {
-        path = `/${args.owner_resource}s/${args.owner_id}/metafields.json`;
-      } else {
-        throw new Error("owner_id is required for non-shop resources");
-      }
-
+      const path = resolveMetafieldPath(args.owner_resource, args.owner_id);
       const data = await client.rest<MetafieldResponse>("POST", path, {
         metafield: {
           namespace: args.namespace,
@@ -75,9 +64,7 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
           type: args.type,
         },
       });
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.metafield, null, 2) }],
-      };
+      return formatResponse(data.metafield);
     }
   );
 
@@ -89,9 +76,7 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
     },
     async (args) => {
       await client.rest("DELETE", `/metafields/${args.metafield_id}.json`);
-      return {
-        content: [{ type: "text", text: `Metafield ${args.metafield_id} deleted successfully.` }],
-      };
+      return formatResponse({ deleted: true, id: args.metafield_id });
     }
   );
 }

@@ -39,7 +39,7 @@ export class ShopifyClient {
         return response.json();
     }
     async graphql(query, variables) {
-        const url = `https://${this.config.shopDomain}/admin/api/${this.config.apiVersion}/graphql.json`;
+        const url = `${this.baseUrl}/graphql.json`;
         const response = await fetch(url, {
             method: "POST",
             headers: this.headers,

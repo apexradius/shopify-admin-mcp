@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ShopifyClient } from "../shopify/client.js";
+import { formatResponse } from "../utils.js";
 
 interface ThemesResponse {
   themes: unknown[];
@@ -22,9 +23,7 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
     {},
     async () => {
       const data = await client.rest<ThemesResponse>("GET", "/themes.json");
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.themes, null, 2) }],
-      };
+      return formatResponse(data.themes);
     }
   );
 
@@ -36,9 +35,7 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
     },
     async (args) => {
       const data = await client.rest<ThemeResponse>("GET", `/themes/${args.theme_id}.json`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.theme, null, 2) }],
-      };
+      return formatResponse(data.theme);
     }
   );
 
@@ -50,9 +47,7 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
     },
     async (args) => {
       const data = await client.rest<AssetsResponse>("GET", `/themes/${args.theme_id}/assets.json`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.assets, null, 2) }],
-      };
+      return formatResponse(data.assets);
     }
   );
 
@@ -66,9 +61,7 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
     async (args) => {
       const qs = client.buildQueryString({ "asset[key]": args.asset_key });
       const data = await client.rest<AssetResponse>("GET", `/themes/${args.theme_id}/assets.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.asset, null, 2) }],
-      };
+      return formatResponse(data.asset);
     }
   );
 
@@ -82,14 +75,9 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
     },
     async (args) => {
       const data = await client.rest<AssetResponse>("PUT", `/themes/${args.theme_id}/assets.json`, {
-        asset: {
-          key: args.asset_key,
-          value: args.value,
-        },
+        asset: { key: args.asset_key, value: args.value },
       });
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.asset, null, 2) }],
-      };
+      return formatResponse(data.asset);
     }
   );
 }

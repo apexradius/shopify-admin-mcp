@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ShopifyClient } from "../shopify/client.js";
+import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 
 interface CustomersResponse {
   customers: unknown[];
@@ -22,16 +23,14 @@ export function registerCustomerTools(server: McpServer, client: ShopifyClient):
     },
     async (args) => {
       const qs = client.buildQueryString({
-        limit: args.limit ?? 50,
+        limit: args.limit ?? DEFAULT_LIMIT,
         since_id: args.since_id,
         created_at_min: args.created_at_min,
         created_at_max: args.created_at_max,
         fields: args.fields,
       });
       const data = await client.rest<CustomersResponse>("GET", `/customers.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.customers, null, 2) }],
-      };
+      return formatResponse(data.customers);
     }
   );
 
@@ -45,9 +44,7 @@ export function registerCustomerTools(server: McpServer, client: ShopifyClient):
     async (args) => {
       const qs = client.buildQueryString({ fields: args.fields });
       const data = await client.rest<CustomerResponse>("GET", `/customers/${args.customer_id}.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.customer, null, 2) }],
-      };
+      return formatResponse(data.customer);
     }
   );
 
@@ -62,13 +59,11 @@ export function registerCustomerTools(server: McpServer, client: ShopifyClient):
     async (args) => {
       const qs = client.buildQueryString({
         query: args.query,
-        limit: args.limit ?? 50,
+        limit: args.limit ?? DEFAULT_LIMIT,
         fields: args.fields,
       });
       const data = await client.rest<CustomersResponse>("GET", `/customers/search.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.customers, null, 2) }],
-      };
+      return formatResponse(data.customers);
     }
   );
 
@@ -78,9 +73,7 @@ export function registerCustomerTools(server: McpServer, client: ShopifyClient):
     {},
     async () => {
       const data = await client.rest<{ count: number }>("GET", "/customers/count.json");
-      return {
-        content: [{ type: "text", text: `Total customers: ${data.count}` }],
-      };
+      return formatResponse({ count: data.count });
     }
   );
 }

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 export function registerProductTools(server, client) {
     server.tool("shopify_list_products", "List products from the Shopify store with optional filters.", {
         limit: z.number().min(1).max(250).optional().describe("Number of products to return (max 250, default 50)"),
@@ -10,7 +11,7 @@ export function registerProductTools(server, client) {
         fields: z.string().optional().describe("Comma-separated list of fields to return"),
     }, async (args) => {
         const qs = client.buildQueryString({
-            limit: args.limit ?? 50,
+            limit: args.limit ?? DEFAULT_LIMIT,
             status: args.status,
             vendor: args.vendor,
             product_type: args.product_type,
@@ -19,9 +20,7 @@ export function registerProductTools(server, client) {
             fields: args.fields,
         });
         const data = await client.rest("GET", `/products.json${qs}`);
-        return {
-            content: [{ type: "text", text: JSON.stringify(data.products, null, 2) }],
-        };
+        return formatResponse(data.products);
     });
     server.tool("shopify_get_product", "Get a single product by ID.", {
         product_id: z.string().describe("The Shopify product ID"),
@@ -29,9 +28,7 @@ export function registerProductTools(server, client) {
     }, async (args) => {
         const qs = client.buildQueryString({ fields: args.fields });
         const data = await client.rest("GET", `/products/${args.product_id}.json${qs}`);
-        return {
-            content: [{ type: "text", text: JSON.stringify(data.product, null, 2) }],
-        };
+        return formatResponse(data.product);
     });
     server.tool("shopify_create_product", "Create a new product in the Shopify store.", {
         title: z.string().describe("Product title"),
@@ -61,9 +58,7 @@ export function registerProductTools(server, client) {
         const data = await client.rest("POST", "/products.json", {
             product: { title, status: status ?? "draft", ...rest },
         });
-        return {
-            content: [{ type: "text", text: JSON.stringify(data.product, null, 2) }],
-        };
+        return formatResponse(data.product);
     });
     server.tool("shopify_update_product", "Update an existing product.", {
         product_id: z.string().describe("The Shopify product ID"),
@@ -78,18 +73,14 @@ export function registerProductTools(server, client) {
         const data = await client.rest("PUT", `/products/${product_id}.json`, {
             product: { id: product_id, ...fields },
         });
-        return {
-            content: [{ type: "text", text: JSON.stringify(data.product, null, 2) }],
-        };
+        return formatResponse(data.product);
     });
     server.tool("shopify_count_products", "Get the total count of products, optionally filtered by status.", {
         status: z.enum(["active", "archived", "draft"]).optional().describe("Filter by status"),
     }, async (args) => {
         const qs = client.buildQueryString({ status: args.status });
         const data = await client.rest("GET", `/products/count.json${qs}`);
-        return {
-            content: [{ type: "text", text: `Total products: ${data.count}` }],
-        };
+        return formatResponse({ count: data.count });
     });
 }
 //# sourceMappingURL=products.js.map

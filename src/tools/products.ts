@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ShopifyClient } from "../shopify/client.js";
+import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 
 interface ProductsResponse {
   products: unknown[];
@@ -24,7 +25,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
     },
     async (args) => {
       const qs = client.buildQueryString({
-        limit: args.limit ?? 50,
+        limit: args.limit ?? DEFAULT_LIMIT,
         status: args.status,
         vendor: args.vendor,
         product_type: args.product_type,
@@ -33,9 +34,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
         fields: args.fields,
       });
       const data = await client.rest<ProductsResponse>("GET", `/products.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.products, null, 2) }],
-      };
+      return formatResponse(data.products);
     }
   );
 
@@ -49,9 +48,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
     async (args) => {
       const qs = client.buildQueryString({ fields: args.fields });
       const data = await client.rest<ProductResponse>("GET", `/products/${args.product_id}.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.product, null, 2) }],
-      };
+      return formatResponse(data.product);
     }
   );
 
@@ -87,9 +84,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
       const data = await client.rest<ProductResponse>("POST", "/products.json", {
         product: { title, status: status ?? "draft", ...rest },
       });
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.product, null, 2) }],
-      };
+      return formatResponse(data.product);
     }
   );
 
@@ -110,9 +105,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
       const data = await client.rest<ProductResponse>("PUT", `/products/${product_id}.json`, {
         product: { id: product_id, ...fields },
       });
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.product, null, 2) }],
-      };
+      return formatResponse(data.product);
     }
   );
 
@@ -125,9 +118,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
     async (args) => {
       const qs = client.buildQueryString({ status: args.status });
       const data = await client.rest<{ count: number }>("GET", `/products/count.json${qs}`);
-      return {
-        content: [{ type: "text", text: `Total products: ${data.count}` }],
-      };
+      return formatResponse({ count: data.count });
     }
   );
 }

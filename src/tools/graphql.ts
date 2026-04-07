@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ShopifyClient } from "../shopify/client.js";
+import { formatResponse } from "../utils.js";
 
 export function registerGraphqlTools(server: McpServer, client: ShopifyClient): void {
   server.tool(
@@ -12,9 +13,7 @@ export function registerGraphqlTools(server: McpServer, client: ShopifyClient): 
     },
     async (args) => {
       const data = await client.graphql<unknown>(args.query, args.variables);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-      };
+      return formatResponse(data);
     }
   );
 }

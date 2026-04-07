@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 export function registerOrderTools(server, client) {
     server.tool("shopify_list_orders", "List orders from the Shopify store with optional filters.", {
         limit: z.number().min(1).max(250).optional().describe("Number of orders to return (max 250, default 50)"),
@@ -16,7 +17,7 @@ export function registerOrderTools(server, client) {
         fields: z.string().optional().describe("Comma-separated list of fields to return"),
     }, async (args) => {
         const qs = client.buildQueryString({
-            limit: args.limit ?? 50,
+            limit: args.limit ?? DEFAULT_LIMIT,
             status: args.status ?? "any",
             financial_status: args.financial_status,
             fulfillment_status: args.fulfillment_status,
@@ -26,9 +27,7 @@ export function registerOrderTools(server, client) {
             fields: args.fields,
         });
         const data = await client.rest("GET", `/orders.json${qs}`);
-        return {
-            content: [{ type: "text", text: JSON.stringify(data.orders, null, 2) }],
-        };
+        return formatResponse(data.orders);
     });
     server.tool("shopify_get_order", "Get a single order by ID.", {
         order_id: z.string().describe("The Shopify order ID"),
@@ -36,9 +35,7 @@ export function registerOrderTools(server, client) {
     }, async (args) => {
         const qs = client.buildQueryString({ fields: args.fields });
         const data = await client.rest("GET", `/orders/${args.order_id}.json${qs}`);
-        return {
-            content: [{ type: "text", text: JSON.stringify(data.order, null, 2) }],
-        };
+        return formatResponse(data.order);
     });
     server.tool("shopify_update_order", "Update an order's note, tags, or email.", {
         order_id: z.string().describe("The Shopify order ID"),
@@ -50,9 +47,7 @@ export function registerOrderTools(server, client) {
         const data = await client.rest("PUT", `/orders/${order_id}.json`, {
             order: { id: order_id, ...fields },
         });
-        return {
-            content: [{ type: "text", text: JSON.stringify(data.order, null, 2) }],
-        };
+        return formatResponse(data.order);
     });
     server.tool("shopify_cancel_order", "Cancel an order.", {
         order_id: z.string().describe("The Shopify order ID"),
@@ -62,18 +57,14 @@ export function registerOrderTools(server, client) {
     }, async (args) => {
         const { order_id, ...params } = args;
         const data = await client.rest("POST", `/orders/${order_id}/cancel.json`, params);
-        return {
-            content: [{ type: "text", text: JSON.stringify(data.order, null, 2) }],
-        };
+        return formatResponse(data.order);
     });
     server.tool("shopify_count_orders", "Get the total count of orders.", {
         status: z.enum(["open", "closed", "cancelled", "any"]).optional().describe("Filter by status"),
     }, async (args) => {
         const qs = client.buildQueryString({ status: args.status ?? "any" });
         const data = await client.rest("GET", `/orders/count.json${qs}`);
-        return {
-            content: [{ type: "text", text: `Total orders: ${data.count}` }],
-        };
+        return formatResponse({ count: data.count });
     });
 }
 //# sourceMappingURL=orders.js.map

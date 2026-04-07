@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ShopifyClient } from "../shopify/client.js";
+import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 
 interface CollectionsResponse {
   custom_collections?: unknown[];
@@ -22,7 +23,7 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
     },
     async (args) => {
       const qs = client.buildQueryString({
-        limit: args.limit ?? 50,
+        limit: args.limit ?? DEFAULT_LIMIT,
         title: args.title,
         fields: args.fields,
       });
@@ -30,19 +31,16 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
         client.rest<CollectionsResponse>("GET", `/custom_collections.json${qs}`),
         client.rest<CollectionsResponse>("GET", `/smart_collections.json${qs}`),
       ]);
-      const result = {
+      return formatResponse({
         custom_collections: custom.custom_collections ?? [],
         smart_collections: smart.smart_collections ?? [],
-      };
-      return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-      };
+      });
     }
   );
 
   server.tool(
     "shopify_get_collection",
-    "Get a custom collection by ID.",
+    "Get a custom or smart collection by ID.",
     {
       collection_id: z.string().describe("The Shopify collection ID"),
       type: z.enum(["custom", "smart"]).optional().describe("Collection type (default: custom)"),
@@ -53,10 +51,7 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
         ? `/smart_collections/${args.collection_id}.json`
         : `/custom_collections/${args.collection_id}.json`;
       const data = await client.rest<CollectionResponse>("GET", endpoint);
-      const collection = data.custom_collection ?? data.smart_collection;
-      return {
-        content: [{ type: "text", text: JSON.stringify(collection, null, 2) }],
-      };
+      return formatResponse(data.custom_collection ?? data.smart_collection);
     }
   );
 
@@ -71,13 +66,11 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
     async (args) => {
       const qs = client.buildQueryString({
         collection_id: args.collection_id,
-        limit: args.limit ?? 50,
+        limit: args.limit ?? DEFAULT_LIMIT,
         fields: args.fields,
       });
       const data = await client.rest<{ products: unknown[] }>("GET", `/products.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.products, null, 2) }],
-      };
+      return formatResponse(data.products);
     }
   );
 }

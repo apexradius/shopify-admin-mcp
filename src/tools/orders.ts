@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ShopifyClient } from "../shopify/client.js";
+import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 
 interface OrdersResponse {
   orders: unknown[];
@@ -30,7 +31,7 @@ export function registerOrderTools(server: McpServer, client: ShopifyClient): vo
     },
     async (args) => {
       const qs = client.buildQueryString({
-        limit: args.limit ?? 50,
+        limit: args.limit ?? DEFAULT_LIMIT,
         status: args.status ?? "any",
         financial_status: args.financial_status,
         fulfillment_status: args.fulfillment_status,
@@ -40,9 +41,7 @@ export function registerOrderTools(server: McpServer, client: ShopifyClient): vo
         fields: args.fields,
       });
       const data = await client.rest<OrdersResponse>("GET", `/orders.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.orders, null, 2) }],
-      };
+      return formatResponse(data.orders);
     }
   );
 
@@ -56,9 +55,7 @@ export function registerOrderTools(server: McpServer, client: ShopifyClient): vo
     async (args) => {
       const qs = client.buildQueryString({ fields: args.fields });
       const data = await client.rest<OrderResponse>("GET", `/orders/${args.order_id}.json${qs}`);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.order, null, 2) }],
-      };
+      return formatResponse(data.order);
     }
   );
 
@@ -76,9 +73,7 @@ export function registerOrderTools(server: McpServer, client: ShopifyClient): vo
       const data = await client.rest<OrderResponse>("PUT", `/orders/${order_id}.json`, {
         order: { id: order_id, ...fields },
       });
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.order, null, 2) }],
-      };
+      return formatResponse(data.order);
     }
   );
 
@@ -94,9 +89,7 @@ export function registerOrderTools(server: McpServer, client: ShopifyClient): vo
     async (args) => {
       const { order_id, ...params } = args;
       const data = await client.rest<OrderResponse>("POST", `/orders/${order_id}/cancel.json`, params);
-      return {
-        content: [{ type: "text", text: JSON.stringify(data.order, null, 2) }],
-      };
+      return formatResponse(data.order);
     }
   );
 
@@ -109,9 +102,7 @@ export function registerOrderTools(server: McpServer, client: ShopifyClient): vo
     async (args) => {
       const qs = client.buildQueryString({ status: args.status ?? "any" });
       const data = await client.rest<{ count: number }>("GET", `/orders/count.json${qs}`);
-      return {
-        content: [{ type: "text", text: `Total orders: ${data.count}` }],
-      };
+      return formatResponse({ count: data.count });
     }
   );
 }

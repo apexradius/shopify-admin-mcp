@@ -4,7 +4,7 @@ export interface ShopifyConfig {
   apiVersion: string;
 }
 
-export interface ShopifyError {
+interface ShopifyError {
   message: string;
   errors?: Record<string, string[]> | string[];
 }
@@ -28,7 +28,7 @@ export class ShopifyClient {
   }
 
   async rest<T>(
-    method: string,
+    method: "GET" | "POST" | "PUT" | "DELETE",
     path: string,
     body?: unknown
   ): Promise<T> {
@@ -61,7 +61,7 @@ export class ShopifyClient {
   }
 
   async graphql<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
-    const url = `https://${this.config.shopDomain}/admin/api/${this.config.apiVersion}/graphql.json`;
+    const url = `${this.baseUrl}/graphql.json`;
     const response = await fetch(url, {
       method: "POST",
       headers: this.headers,
