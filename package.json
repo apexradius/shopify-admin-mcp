@@ -13,13 +13,13 @@
   ],
   "author": "Apex Radius Labs",
   "license": "MIT",
-  "homepage": "https://github.com/apexradius/shopify-mcp",
+  "homepage": "https://github.com/apexradius/shopify-admin-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/apexradius/shopify-mcp.git"
+    "url": "https://github.com/apexradius/shopify-admin-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/apexradius/shopify-mcp/issues"
+    "url": "https://github.com/apexradius/shopify-admin-mcp/issues"
   },
   "type": "module",
   "main": "dist/index.js",
