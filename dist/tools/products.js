@@ -44,15 +44,15 @@ export function registerProductTools(server, client) {
             option1: z.string().optional(),
             option2: z.string().optional(),
             option3: z.string().optional(),
-        })).optional().describe("Product variants"),
+        })).max(100).optional().describe("Product variants (max 100)"),
         options: z.array(z.object({
             name: z.string(),
             values: z.array(z.string()),
-        })).optional().describe("Product options"),
+        })).max(3).optional().describe("Product options (max 3, matching Shopify limit)"),
         images: z.array(z.object({
             src: z.string().describe("Image URL"),
             alt: z.string().optional(),
-        })).optional().describe("Product images"),
+        })).max(250).optional().describe("Product images (max 250)"),
     }, async (args) => {
         const { title, status, ...rest } = args;
         const data = await client.rest("POST", "/products.json", {

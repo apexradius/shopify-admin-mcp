@@ -13,7 +13,7 @@ function resolveMetafieldPath(ownerResource, ownerId) {
 export function registerMetafieldTools(server, client) {
     server.tool("shopify_list_metafields", "List metafields for a resource (product, order, customer, etc.).", {
         owner_resource: ownerResourceEnum.describe("The type of resource"),
-        owner_id: z.string().optional().describe("The ID of the resource (omit for shop-level metafields)"),
+        owner_id: z.string().optional().describe("The ID of the resource (required unless owner_resource is 'shop')"),
         namespace: z.string().optional().describe("Filter by namespace"),
         key: z.string().optional().describe("Filter by key"),
         limit: z.number().min(1).max(250).optional().describe("Number of metafields to return (default 50)"),
@@ -29,7 +29,7 @@ export function registerMetafieldTools(server, client) {
     });
     server.tool("shopify_set_metafield", "Create or update a metafield on a resource.", {
         owner_resource: ownerResourceEnum.describe("The type of resource"),
-        owner_id: z.string().optional().describe("The ID of the resource (omit for shop-level metafields)"),
+        owner_id: z.string().optional().describe("The ID of the resource (required unless owner_resource is 'shop')"),
         namespace: z.string().describe("Metafield namespace"),
         key: z.string().describe("Metafield key"),
         value: z.string().describe("Metafield value"),

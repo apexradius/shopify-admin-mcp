@@ -52,7 +52,7 @@ export function registerCustomerTools(server: McpServer, client: ShopifyClient):
     "shopify_search_customers",
     "Search customers by name, email, phone, or other fields.",
     {
-      query: z.string().describe("Search query (e.g. 'email:test@example.com' or 'John')"),
+      query: z.string().min(1).describe("Search query (e.g. 'email:test@example.com' or 'John')"),
       limit: z.number().min(1).max(250).optional().describe("Number of results to return (default 50)"),
       fields: z.string().optional().describe("Comma-separated list of fields to return"),
     },

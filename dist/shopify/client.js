@@ -18,6 +18,7 @@ export class ShopifyClient {
             method,
             headers: this.headers,
             body: body ? JSON.stringify(body) : undefined,
+            signal: AbortSignal.timeout(30_000),
         });
         if (!response.ok) {
             const errorText = await response.text();
@@ -44,6 +45,7 @@ export class ShopifyClient {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({ query, variables }),
+            signal: AbortSignal.timeout(30_000),
         });
         if (!response.ok) {
             throw new Error(`Shopify GraphQL error ${response.status}: ${response.statusText}`);

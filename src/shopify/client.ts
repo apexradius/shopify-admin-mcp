@@ -37,6 +37,7 @@ export class ShopifyClient {
       method,
       headers: this.headers,
       body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(30_000),
     });
 
     if (!response.ok) {
@@ -66,6 +67,7 @@ export class ShopifyClient {
       method: "POST",
       headers: this.headers,
       body: JSON.stringify({ query, variables }),
+      signal: AbortSignal.timeout(30_000),
     });
 
     if (!response.ok) {
