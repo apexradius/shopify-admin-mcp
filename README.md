@@ -119,4 +119,4 @@ Add to your `~/.mcp.json` or Claude Desktop config:
 
 ## License
 
-MIT © [Apex Radius Labs](https://apexradiuslabs.com)
+MIT © [Apex Radius](https://apexradiuslabs.com)

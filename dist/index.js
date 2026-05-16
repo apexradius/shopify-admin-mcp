@@ -3,7 +3,7 @@
  * @apexradius/shopify-mcp
  * A Model Context Protocol server for Shopify.
  *
- * Apex Radius Labs — Excellence in every detail.
+ * Apex Radius — Excellence in every detail.
  *
  * Environment variables:
  *   SHOPIFY_SHOP_DOMAIN   — your-store.myshopify.com
