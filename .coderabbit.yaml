@@ -1,0 +1,66 @@
+# CodeRabbit config — Apex Radius standard (TypeScript MCP package)
+# Sourced from apexradius/ci-templates/configs/coderabbit.yaml@v1.0.3
+# Tools we already run in CI (ESLint via npm run lint, Prettier, gitleaks) are
+# disabled so CodeRabbit focuses on real bugs, not style/format duplicates.
+
+language: en
+early_access: false
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  auto_review:
+    enabled: true
+    drafts: false
+
+  path_filters:
+    - '!**/node_modules/**'
+    - '!**/dist/**'
+    - '!**/build/**'
+    - '!**/coverage/**'
+    - '!**/*.lock'
+    - '!**/package-lock.json'
+
+  tools:
+    biome:
+      enabled: false
+    eslint:
+      enabled: false      # We run ESLint in CI via npm run lint.
+    gitleaks:
+      enabled: false      # We run a dedicated gitleaks job in CI.
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: false
+
+  instructions: |
+    You are an expert peer reviewer for the @apexradius/shopify-mcp package — a
+    Model Context Protocol server giving Claude direct access to a Shopify store.
+    Skip everything ESLint, Prettier, or gitleaks would catch — do not comment on
+    syntax, formatting, import order, semicolons, or hardcoded-secret patterns
+    our toolchain already flags.
+
+    Focus exclusively on:
+      - Functional logic bugs (off-by-one, wrong branch, mishandled Promise rejection)
+      - Type safety regressions (any-creep, unchecked casts, missing null guards)
+      - Async / Promise / race conditions
+      - Shopify Admin API correctness — wrong API version pin, missing pagination
+        cursors, incorrect rate-limit handling, GraphQL vs REST mismatches
+      - MCP protocol compliance — tool schema correctness, missing error responses,
+        unbounded responses that exceed MCP context budgets
+      - Performance — N+1 calls to Shopify, missing batching, unnecessary refetches
+      - Security — token leakage in logs, injection into GraphQL queries, exposed
+        store URLs in error messages, missing input validation on tool args
+
+    Apex Radius context:
+      - Published to npm as `@apexradius/shopify-mcp` (v1.0.0+). Public consumers
+        depend on the CLI binary `shopify-mcp` — any breaking change to its
+        invocation, env vars, or tool schemas is a release blocker.
+      - Uses shared ESLint config from `@apexradius/apex-mcp-shared` — flag any
+        eslint-disable comments without a justifying inline reason.
+
+chat:
+  auto_reply: true
