@@ -30,7 +30,7 @@ export class ShopifyClient {
   async rest<T>(
     method: "GET" | "POST" | "PUT" | "DELETE",
     path: string,
-    body?: unknown
+    body?: unknown,
   ): Promise<T> {
     const url = `${this.baseUrl}${path}`;
     const response = await fetch(url, {
@@ -74,7 +74,7 @@ export class ShopifyClient {
       throw new Error(`Shopify GraphQL error ${response.status}: ${response.statusText}`);
     }
 
-    const result = await response.json() as { data?: T; errors?: Array<{ message: string }> };
+    const result = (await response.json()) as { data?: T; errors?: Array<{ message: string }> };
 
     if (result.errors && result.errors.length > 0) {
       throw new Error(`GraphQL errors: ${result.errors.map((e) => e.message).join(", ")}`);

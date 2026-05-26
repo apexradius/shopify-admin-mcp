@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ShopifyClient } from "../shopify/client.js";
+import type { ShopifyClient } from "../shopify/client.js";
 import { formatResponse } from "../utils.js";
 
 interface ThemesResponse {
@@ -17,15 +17,10 @@ interface AssetResponse {
 }
 
 export function registerThemeTools(server: McpServer, client: ShopifyClient): void {
-  server.tool(
-    "shopify_list_themes",
-    "List all themes in the Shopify store.",
-    {},
-    async () => {
-      const data = await client.rest<ThemesResponse>("GET", "/themes.json");
-      return formatResponse(data.themes);
-    }
-  );
+  server.tool("shopify_list_themes", "List all themes in the Shopify store.", {}, async () => {
+    const data = await client.rest<ThemesResponse>("GET", "/themes.json");
+    return formatResponse(data.themes);
+  });
 
   server.tool(
     "shopify_get_theme",
@@ -36,7 +31,7 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
     async (args) => {
       const data = await client.rest<ThemeResponse>("GET", `/themes/${args.theme_id}.json`);
       return formatResponse(data.theme);
-    }
+    },
   );
 
   server.tool(
@@ -48,7 +43,7 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
     async (args) => {
       const data = await client.rest<AssetsResponse>("GET", `/themes/${args.theme_id}/assets.json`);
       return formatResponse(data.assets);
-    }
+    },
   );
 
   server.tool(
@@ -56,13 +51,18 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
     "Get the content of a specific theme asset (template, CSS, JS, etc.).",
     {
       theme_id: z.string().describe("The Shopify theme ID"),
-      asset_key: z.string().describe("The asset key (e.g. 'templates/index.liquid', 'assets/app.css')"),
+      asset_key: z
+        .string()
+        .describe("The asset key (e.g. 'templates/index.liquid', 'assets/app.css')"),
     },
     async (args) => {
       const qs = client.buildQueryString({ "asset[key]": args.asset_key });
-      const data = await client.rest<AssetResponse>("GET", `/themes/${args.theme_id}/assets.json${qs}`);
+      const data = await client.rest<AssetResponse>(
+        "GET",
+        `/themes/${args.theme_id}/assets.json${qs}`,
+      );
       return formatResponse(data.asset);
-    }
+    },
   );
 
   server.tool(
@@ -78,6 +78,6 @@ export function registerThemeTools(server: McpServer, client: ShopifyClient): vo
         asset: { key: args.asset_key, value: args.value },
       });
       return formatResponse(data.asset);
-    }
+    },
   );
 }

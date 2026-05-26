@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ShopifyClient } from "../shopify/client.js";
+import type { ShopifyClient } from "../shopify/client.js";
 import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 
 interface ProductsResponse {
@@ -15,8 +15,16 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
     "shopify_list_products",
     "List products from the Shopify store with optional filters.",
     {
-      limit: z.number().min(1).max(250).optional().describe("Number of products to return (max 250, default 50)"),
-      status: z.enum(["active", "archived", "draft"]).optional().describe("Filter by product status"),
+      limit: z
+        .number()
+        .min(1)
+        .max(250)
+        .optional()
+        .describe("Number of products to return (max 250, default 50)"),
+      status: z
+        .enum(["active", "archived", "draft"])
+        .optional()
+        .describe("Filter by product status"),
       vendor: z.string().optional().describe("Filter by vendor name"),
       product_type: z.string().optional().describe("Filter by product type"),
       title: z.string().optional().describe("Filter by title (partial match)"),
@@ -35,7 +43,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
       });
       const data = await client.rest<ProductsResponse>("GET", `/products.json${qs}`);
       return formatResponse(data.products);
-    }
+    },
   );
 
   server.tool(
@@ -47,9 +55,12 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
     },
     async (args) => {
       const qs = client.buildQueryString({ fields: args.fields });
-      const data = await client.rest<ProductResponse>("GET", `/products/${args.product_id}.json${qs}`);
+      const data = await client.rest<ProductResponse>(
+        "GET",
+        `/products/${args.product_id}.json${qs}`,
+      );
       return formatResponse(data.product);
-    }
+    },
   );
 
   server.tool(
@@ -60,24 +71,45 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
       body_html: z.string().optional().describe("Product description (HTML)"),
       vendor: z.string().optional().describe("Product vendor"),
       product_type: z.string().optional().describe("Product type"),
-      status: z.enum(["active", "archived", "draft"]).optional().describe("Product status (default: draft)"),
+      status: z
+        .enum(["active", "archived", "draft"])
+        .optional()
+        .describe("Product status (default: draft)"),
       tags: z.string().optional().describe("Comma-separated tags"),
-      variants: z.array(z.object({
-        price: z.string().describe("Variant price"),
-        sku: z.string().optional(),
-        inventory_quantity: z.number().optional(),
-        option1: z.string().optional(),
-        option2: z.string().optional(),
-        option3: z.string().optional(),
-      })).max(100).optional().describe("Product variants (max 100)"),
-      options: z.array(z.object({
-        name: z.string(),
-        values: z.array(z.string()),
-      })).max(3).optional().describe("Product options (max 3, matching Shopify limit)"),
-      images: z.array(z.object({
-        src: z.string().describe("Image URL"),
-        alt: z.string().optional(),
-      })).max(250).optional().describe("Product images (max 250)"),
+      variants: z
+        .array(
+          z.object({
+            price: z.string().describe("Variant price"),
+            sku: z.string().optional(),
+            inventory_quantity: z.number().optional(),
+            option1: z.string().optional(),
+            option2: z.string().optional(),
+            option3: z.string().optional(),
+          }),
+        )
+        .max(100)
+        .optional()
+        .describe("Product variants (max 100)"),
+      options: z
+        .array(
+          z.object({
+            name: z.string(),
+            values: z.array(z.string()),
+          }),
+        )
+        .max(3)
+        .optional()
+        .describe("Product options (max 3, matching Shopify limit)"),
+      images: z
+        .array(
+          z.object({
+            src: z.string().describe("Image URL"),
+            alt: z.string().optional(),
+          }),
+        )
+        .max(250)
+        .optional()
+        .describe("Product images (max 250)"),
     },
     async (args) => {
       const { title, status, ...rest } = args;
@@ -85,7 +117,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
         product: { title, status: status ?? "draft", ...rest },
       });
       return formatResponse(data.product);
-    }
+    },
   );
 
   server.tool(
@@ -106,7 +138,7 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
         product: { id: product_id, ...fields },
       });
       return formatResponse(data.product);
-    }
+    },
   );
 
   server.tool(
@@ -119,6 +151,6 @@ export function registerProductTools(server: McpServer, client: ShopifyClient): 
       const qs = client.buildQueryString({ status: args.status });
       const data = await client.rest<{ count: number }>("GET", `/products/count.json${qs}`);
       return formatResponse({ count: data.count });
-    }
+    },
   );
 }

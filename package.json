@@ -1,7 +1,7 @@
 {
   "name": "@apexradius/shopify-mcp",
   "version": "1.0.0",
-  "description": "A Model Context Protocol (MCP) server for Shopify — giving Claude direct access to your store's products, orders, customers, collections, metafields, and themes.",
+  "description": "A Model Context Protocol (MCP) server for Shopify \u2014 giving Claude direct access to your store's products, orders, customers, collections, metafields, and themes.",
   "keywords": [
     "shopify",
     "mcp",
@@ -36,12 +36,14 @@
     "prepublishOnly": "npm run build",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "biome": "biome check --write .",
+    "biome:ci": "biome ci ."
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.1",
     "zod": "^4.3.6",
-    "@apexradius/apex-mcp-shared": "^1.2.0"
+    "@apexradius/apex-mcp-shared": "^1.3.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -51,7 +53,8 @@
     "prettier": "^3.8.3",
     "typescript-eslint": "^8.59.4",
     "eslint-config-prettier": "^10.1.8",
-    "@eslint/js": "^10.0.1"
+    "@eslint/js": "^10.0.1",
+    "@biomejs/biome": "^2.4.15"
   },
   "engines": {
     "node": ">=18.0.0"
