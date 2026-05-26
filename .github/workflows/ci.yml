@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: apexradius/ci-templates/.github/workflows/typescript-pkg.yml@v1.0.3
+    uses: apexradius/ci-templates/.github/workflows/typescript-pkg.yml@main
     with:
       node-version: '20'
       package-manager: 'npm'
