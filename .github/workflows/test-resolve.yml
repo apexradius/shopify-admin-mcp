@@ -1,0 +1,8 @@
+name: TestResolve
+on: workflow_dispatch
+jobs:
+  test-shopify-theme:
+    uses: apexradius/ci-templates/.github/workflows/shopify-theme.yml@v1.0.3
+    with:
+      lint-asset-js: false
+      secrets-scan: false
