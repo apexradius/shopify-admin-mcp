@@ -1,5 +1,5 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ShopifyClient } from "../shopify/client.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { ShopifyClient } from "../shopify/client.js";
 import { formatResponse } from "../utils.js";
 
 interface ShopResponse {
@@ -14,6 +14,6 @@ export function registerShopTools(server: McpServer, client: ShopifyClient): voi
     async () => {
       const data = await client.rest<ShopResponse>("GET", "/shop.json");
       return formatResponse(data.shop);
-    }
+    },
   );
 }

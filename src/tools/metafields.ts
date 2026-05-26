@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ShopifyClient } from "../shopify/client.js";
+import type { ShopifyClient } from "../shopify/client.js";
 import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 
 interface MetafieldsResponse {
@@ -11,7 +11,15 @@ interface MetafieldResponse {
 }
 
 const ownerResourceEnum = z.enum([
-  "product", "variant", "order", "customer", "collection", "shop", "blog", "page", "article",
+  "product",
+  "variant",
+  "order",
+  "customer",
+  "collection",
+  "shop",
+  "blog",
+  "page",
+  "article",
 ]);
 
 function resolveMetafieldPath(ownerResource: string, ownerId?: string): string {
@@ -26,10 +34,18 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
     "List metafields for a resource (product, order, customer, etc.).",
     {
       owner_resource: ownerResourceEnum.describe("The type of resource"),
-      owner_id: z.string().optional().describe("The ID of the resource (required unless owner_resource is 'shop')"),
+      owner_id: z
+        .string()
+        .optional()
+        .describe("The ID of the resource (required unless owner_resource is 'shop')"),
       namespace: z.string().optional().describe("Filter by namespace"),
       key: z.string().optional().describe("Filter by key"),
-      limit: z.number().min(1).max(250).optional().describe("Number of metafields to return (default 50)"),
+      limit: z
+        .number()
+        .min(1)
+        .max(250)
+        .optional()
+        .describe("Number of metafields to return (default 50)"),
     },
     async (args) => {
       const path = resolveMetafieldPath(args.owner_resource, args.owner_id);
@@ -40,7 +56,7 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
       });
       const data = await client.rest<MetafieldsResponse>("GET", `${path}${qs}`);
       return formatResponse(data.metafields);
-    }
+    },
   );
 
   server.tool(
@@ -48,11 +64,18 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
     "Create or update a metafield on a resource.",
     {
       owner_resource: ownerResourceEnum.describe("The type of resource"),
-      owner_id: z.string().optional().describe("The ID of the resource (required unless owner_resource is 'shop')"),
+      owner_id: z
+        .string()
+        .optional()
+        .describe("The ID of the resource (required unless owner_resource is 'shop')"),
       namespace: z.string().describe("Metafield namespace"),
       key: z.string().describe("Metafield key"),
       value: z.string().describe("Metafield value"),
-      type: z.string().describe("Metafield type (e.g. single_line_text_field, integer, json, boolean, url, color, date, date_time, dimension, rating, volume, weight, money)"),
+      type: z
+        .string()
+        .describe(
+          "Metafield type (e.g. single_line_text_field, integer, json, boolean, url, color, date, date_time, dimension, rating, volume, weight, money)",
+        ),
     },
     async (args) => {
       const path = resolveMetafieldPath(args.owner_resource, args.owner_id);
@@ -65,7 +88,7 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
         },
       });
       return formatResponse(data.metafield);
-    }
+    },
   );
 
   server.tool(
@@ -77,6 +100,6 @@ export function registerMetafieldTools(server: McpServer, client: ShopifyClient)
     async (args) => {
       await client.rest("DELETE", `/metafields/${args.metafield_id}.json`);
       return formatResponse({ deleted: true, id: args.metafield_id });
-    }
+    },
   );
 }

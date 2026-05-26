@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ShopifyClient } from "../shopify/client.js";
+import type { ShopifyClient } from "../shopify/client.js";
 import { DEFAULT_LIMIT, formatResponse } from "../utils.js";
 
 interface CollectionsResponse {
@@ -17,7 +17,12 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
     "shopify_list_collections",
     "List all collections (both custom and smart collections) from the Shopify store.",
     {
-      limit: z.number().min(1).max(250).optional().describe("Number of collections to return per type (default 50)"),
+      limit: z
+        .number()
+        .min(1)
+        .max(250)
+        .optional()
+        .describe("Number of collections to return per type (default 50)"),
       title: z.string().optional().describe("Filter by title"),
       fields: z.string().optional().describe("Comma-separated list of fields to return"),
     },
@@ -35,7 +40,7 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
         custom_collections: custom.custom_collections ?? [],
         smart_collections: smart.smart_collections ?? [],
       });
-    }
+    },
   );
 
   server.tool(
@@ -47,12 +52,13 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
     },
     async (args) => {
       const type = args.type ?? "custom";
-      const endpoint = type === "smart"
-        ? `/smart_collections/${args.collection_id}.json`
-        : `/custom_collections/${args.collection_id}.json`;
+      const endpoint =
+        type === "smart"
+          ? `/smart_collections/${args.collection_id}.json`
+          : `/custom_collections/${args.collection_id}.json`;
       const data = await client.rest<CollectionResponse>("GET", endpoint);
       return formatResponse(data.custom_collection ?? data.smart_collection);
-    }
+    },
   );
 
   server.tool(
@@ -60,7 +66,12 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
     "List products in a specific collection.",
     {
       collection_id: z.string().describe("The Shopify collection ID"),
-      limit: z.number().min(1).max(250).optional().describe("Number of products to return (default 50)"),
+      limit: z
+        .number()
+        .min(1)
+        .max(250)
+        .optional()
+        .describe("Number of products to return (default 50)"),
       fields: z.string().optional().describe("Comma-separated list of fields to return"),
     },
     async (args) => {
@@ -71,6 +82,6 @@ export function registerCollectionTools(server: McpServer, client: ShopifyClient
       });
       const data = await client.rest<{ products: unknown[] }>("GET", `/products.json${qs}`);
       return formatResponse(data.products);
-    }
+    },
   );
 }

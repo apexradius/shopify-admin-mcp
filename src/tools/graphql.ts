@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ShopifyClient } from "../shopify/client.js";
+import type { ShopifyClient } from "../shopify/client.js";
 import { formatResponse } from "../utils.js";
 
 export function registerGraphqlTools(server: McpServer, client: ShopifyClient): void {
@@ -9,11 +9,14 @@ export function registerGraphqlTools(server: McpServer, client: ShopifyClient): 
     "Execute a raw GraphQL query or mutation against the Shopify Admin API. Use this for advanced queries not covered by the other tools.",
     {
       query: z.string().describe("The GraphQL query or mutation string"),
-      variables: z.record(z.string(), z.unknown()).optional().describe("GraphQL variables as a JSON object"),
+      variables: z
+        .record(z.string(), z.unknown())
+        .optional()
+        .describe("GraphQL variables as a JSON object"),
     },
     async (args) => {
       const data = await client.graphql<unknown>(args.query, args.variables);
       return formatResponse(data);
-    }
+    },
   );
 }

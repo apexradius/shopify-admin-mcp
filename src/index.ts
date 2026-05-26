@@ -14,14 +14,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createClient } from "./shopify/client.js";
-import { registerShopTools } from "./tools/shop.js";
-import { registerProductTools } from "./tools/products.js";
-import { registerOrderTools } from "./tools/orders.js";
-import { registerCustomerTools } from "./tools/customers.js";
 import { registerCollectionTools } from "./tools/collections.js";
-import { registerMetafieldTools } from "./tools/metafields.js";
-import { registerThemeTools } from "./tools/themes.js";
+import { registerCustomerTools } from "./tools/customers.js";
 import { registerGraphqlTools } from "./tools/graphql.js";
+import { registerMetafieldTools } from "./tools/metafields.js";
+import { registerOrderTools } from "./tools/orders.js";
+import { registerProductTools } from "./tools/products.js";
+import { registerShopTools } from "./tools/shop.js";
+import { registerThemeTools } from "./tools/themes.js";
 
 async function main() {
   let client;
@@ -54,6 +54,8 @@ async function main() {
 }
 
 main().catch((err) => {
-  process.stderr.write(`[shopify-mcp] Fatal error: ${err instanceof Error ? err.message : String(err)}\n`);
+  process.stderr.write(
+    `[shopify-mcp] Fatal error: ${err instanceof Error ? err.message : String(err)}\n`,
+  );
   process.exit(1);
 });
