@@ -14,13 +14,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: apexradius/ci-templates/.github/workflows/typescript-pkg.yml@main
+    uses: apexradius/ci-templates/.github/workflows/shopify-theme.yml@v1.0.3
     with:
-      node-version: '20'
-      package-manager: 'npm'
-      # Keep the existing ESLint + Prettier toolchain wired via apex-mcp-shared.
-      linter: 'eslint'
-      run-typecheck: true
-      run-build: true
-      run-tests: true
-      secrets-scan: true
+      lint-asset-js: false
+      secrets-scan: false
