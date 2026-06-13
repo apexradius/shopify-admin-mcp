@@ -2,10 +2,15 @@ name: Biome
 
 on:
   pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
   push:
-    branches-ignore:
-      - "renovate/**"
-      - "dependabot/**"
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
 
 concurrency:
   group: biome-${{ github.workflow }}-${{ github.ref }}
