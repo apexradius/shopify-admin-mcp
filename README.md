@@ -4,6 +4,59 @@
 
 A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Shopify — giving Claude and other AI assistants direct, structured access to your store's data.
 
+## Start Here
+
+| You are | Start with | Time |
+|---|---|---:|
+| Installing the server | [Installation](#installation) and [Configuration](#configuration) | 10 min |
+| Connecting an MCP client | [Claude Desktop / Claude Code Setup](#claude-desktop--claude-code-setup) | 5 min |
+| Extending tools | [docs/architecture.md](docs/architecture.md) and `src/tools/` | 15 min |
+
+## Architecture
+
+```mermaid
+flowchart TD
+    MCP[MCP client] -->|stdio| Server[src/index.ts]
+    Server --> Client[src/shopify/client.ts]
+    Server --> Shared["@apexradius/apex-mcp-shared"]
+
+    subgraph Tool groups
+        Products[src/tools/products.ts]
+        Orders[src/tools/orders.ts]
+        Customers[src/tools/customers.ts]
+        Themes[src/tools/themes.ts]
+        GraphQL[src/tools/graphql.ts]
+    end
+
+    Server --> Products
+    Server --> Orders
+    Server --> Customers
+    Server --> Themes
+    Server --> GraphQL
+    Products --> Client
+    Orders --> Client
+    Customers --> Client
+    Themes --> Client
+    GraphQL --> Client
+    Client --> Shopify[Shopify Admin API]
+```
+
+See [docs/architecture.md](docs/architecture.md) for the request sequence and extension points.
+
+## Primary Workflow
+
+```mermaid
+flowchart TD
+    Ask([User asks store task]) --> Tool[Select Shopify tool]
+    Tool --> Config{Env configured?}
+    Config -->|no| Error[Return config error]
+    Config -->|yes| Risk{Write operation?}
+    Risk -->|no| Read[Read from Admin API]
+    Risk -->|yes| Write[Write via Admin API]
+    Read --> Result[Return structured result]
+    Write --> Result
+```
+
 ## Features
 
 | Category | Tools |
@@ -120,3 +173,8 @@ Add to your `~/.mcp.json` or Claude Desktop config:
 ## License
 
 MIT © [Apex Radius](https://apexradiuslabs.com)
+
+## Reference
+
+- [Start here](docs/start-here.md)
+- [Architecture](docs/architecture.md)
