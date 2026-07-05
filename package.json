@@ -33,6 +33,7 @@
     "build": "tsc",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
+    "test": "node --import tsx --test test/*.test.ts",
     "prepublishOnly": "npm run build",
     "lint": "biome ci .",
     "biome": "biome check --write .",
