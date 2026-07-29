@@ -1,6 +1,4 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "ignoreDependencies": [
-    "@apexradius/apex-mcp-shared"
-  ]
+  "ignoreDependencies": ["@apexradius/apex-mcp-shared"]
 }
