@@ -1,0 +1,4 @@
+agent: codex
+commands:
+  prepare: "npm ci --silent"
+  test: "node --import tsx --test test/*.test.ts"
